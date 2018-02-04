@@ -1,0 +1,54 @@
+int temp2(void)
+
+{
+  //Crystal Ball fit for an unscaled peak (in the 1000s)
+  //  plot->Draw();
+  
+ 
+  //Unscaled //100 GeV
+  float rbot = 3000;
+  float rtop = 4500;
+  float mean = 4000;
+  float constant = 40;
+  float sig = 100;
+  float alpha = 0.5;
+  float N = 10;
+  //  */
+
+  TF1*f_cb    = new TF1("f_cb","crystalball", rbot, rtop);                                                                                                                                               
+  f_cb -> SetParameters(constant, mean, sig, alpha, N);                                                                                                                                                  
+  //htemp->Fit("f_cb","R");                                                                                                                                                                             
+  plot->Fit("f_cb","R");
+
+  constant = f_cb->GetParameter(0);                                                                                                                                                                       
+  mean = f_cb->GetParameter(1);                                                                                                                                                                            
+  float errmean = f_cb->GetParError(1);                                                                                                                                                                   
+  sig = f_cb->GetParameter(2);                                                                                                                                                                            
+  float errsig = f_cb->GetParError(2);                                                                                                                                                                   
+  float error =  (sig/mean)* sqrt( pow((errmean/mean),2) + pow((errsig/sig),2)) ;                                                                                                                       
+  alpha = f_cb->GetParameter(3);                                                                                                                                                                          
+  N = f_cb->GetParameter(4);                                                                                                                                                                               
+
+  TF1*f_cb2    = new TF1("f_cb2","crystalball", rbot, rtop);
+  f_cb2 -> SetParameters(constant,mean,sig,alpha,N);
+  //htemp->Fit("f_cb2","R");
+  plot->Fit("f_cb2","R");
+  
+ 
+  mean = f_cb2->GetParameter(1);                                                                                                                                                                           
+  errmean = f_cb2->GetParError(1);                                                                                                                                                                         
+  sig = f_cb2->GetParameter(2);                                                                                                                                                                            
+  errsig = f_cb2->GetParError(2);                                                                                                                                                                          
+  error =  (sig/mean)* sqrt( pow((errmean/mean),2) + pow((errsig/sig),2)) ;                                                                                                                                
+                                                                                                                                                                                                   
+  std::cout << " ~~~~~~~~~~~ " << std::endl;                                                                                                                                                              
+  std::cout << " Peak  = " <<  mean << "+/-" << errmean  << std::endl;                                                                                                                                    
+  std::cout << " Sigma  = " <<  sig << "+/-" << errsig << std::endl;                                                                                                                                      
+  std::cout << " sigma/mean  = " <<  sig/mean << "+/-" << error  << std::endl;                                                                                                                            
+  std::cout << " ~~~~~~~~~~~ " << std::endl; 
+  //htemp->Draw();
+  plot->Draw();
+
+  return 0;
+
+}
