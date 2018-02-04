@@ -1,4 +1,4 @@
-int cbfit(int rbot = 0, int rtop = 8000, int nbins = 100)
+int temp2(void)
 
 {
   //Crystal Ball fit for an unscaled peak (in the 1000s)
@@ -6,7 +6,9 @@ int cbfit(int rbot = 0, int rtop = 8000, int nbins = 100)
   
  
   //Unscaled //100 GeV
-  float mean = (rbot + rtop)/2;
+  float rbot = 3000;
+  float rtop = 4500;
+  float mean = 4000;
   float constant = 40;
   float sig = 100;
   float alpha = 0.5;
