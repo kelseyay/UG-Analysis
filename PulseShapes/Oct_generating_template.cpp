@@ -17,8 +17,8 @@ const int nsamples = 150;
 const int nboards = 1;
 const int nchannels_per_board = 5;
 const int nchannels = nboards*nchannels_per_board;
-const int impinged_channel = 2;
-const float beam_energy = 100.0;
+const int impinged_channel = 1;
+const float beam_energy = 50.0;
 
 float amp_max[nchannels];
 float time_max[nchannels];
@@ -33,7 +33,7 @@ float hodoY[2];
 
 void Oct_generating_template(){
   TCanvas *canvas = new TCanvas("generating template","generating template");
-  TFile *file = new TFile("/afs/cern.ch/user/k/kyee/H4Analysis/ntuples/oct_C3_100_9906.root");
+  TFile *file = new TFile("/afs/cern.ch/user/k/kyee/H4Analysis/ntuples/oct_15_10038.root");
   //TFile *file = new TFile("/afs/cern.ch/work/a/ajofrehe/cern-summer-2016/July2017/H4Analysis/ntuples/vfe_55_C3_100.root");
   TTree *mtree = (TTree*) file->Get("h4");
   mtree->SetBranchAddress("WF_time",WF_time);
@@ -55,8 +55,8 @@ void Oct_generating_template(){
   htree->SetBranchAddress("Y",hodoY);
   cout << "Checkpoint 1" << endl;
   TF1 *g = new TF1("g","gaus",0,1000);
-  TH1F *waveform = new TH1F("waveform - C3 - 100 GeV - 6*6 mm^2 at center","waveform - C3 - 100 GeV - 6*6 mm^2 at center;time(ns)",nsamples,-0.125,937.375);
-  TProfile *mean_waveform = new TProfile("mean waveform - C3 - 100 GeV - 6*6 mm^2 at center","mean waveform - C3 - 100 GeV - 6*6 mm^2 at center;time(ns)",nsamples,-0.125,937.375);
+  TH1F *waveform = new TH1F("waveform - C3 - 50 GeV - 6*6 mm^2 at center","waveform - C3 - 50 GeV - 6*6 mm^2 at center;time(ns)",nsamples,-0.125,937.375);
+  TProfile *mean_waveform = new TProfile("mean waveform - C3 - 50 GeV - 6*6 mm^2 at center","mean waveform - C3 - 50 GeV - 6*6 mm^2 at center;time(ns)",nsamples,-0.125,937.375);
 
 
   const Long64_t nentries = htree->GetEntriesFast();
@@ -85,7 +85,7 @@ void Oct_generating_template(){
     nb = dtree->GetEntry(jentry);
     dummy_amp[jentry] = amp_max[impinged_channel];
     dummy_time[jentry] = time_max[impinged_channel];
-    if (amp_max[1]>35&&amp_max[3]>35&&dummy_amp[jentry] > 3000.0*beam_energy/100.0 && time_max[impinged_channel] < 270) dummy_constraint[jentry] = true;
+    if (amp_max[0]>35&&amp_max[2]>35&&dummy_amp[jentry] > 3000.0*beam_energy/100.0 && time_max[impinged_channel] > 270) dummy_constraint[jentry] = true;
     else dummy_constraint[jentry] = false;
   }
   cout << "No segvi yet" << endl;
@@ -104,7 +104,7 @@ void Oct_generating_template(){
     X[1] = hodo_dummy_X1[jentry];
     Y[1] = hodo_dummy_Y1[jentry];
 
-    //if (TMath::Abs(X[0]-1)<10&&TMath::Abs(Y[0]+2)<10){                                                 //To be tuned
+    if (TMath::Abs(X[0]-4)<5&&TMath::Abs(Y[0]+4)<5){                                                 //To be tuned
     if (dummy_constraint[jentry] == true){                                                 //To be tuned
       waveform->Reset();
       for (int i = 0;i < nsamples;i++) waveform->SetBinContent(i+1,WF_val[i+impinged_channel*nsamples]);
@@ -116,12 +116,12 @@ void Oct_generating_template(){
       g->SetParLimits(1,240,320);
       waveform->Fit("g","Q");
       waveform->Fit("g","Q","",-18+g->GetParameter(1),18+g->GetParameter(1));
-      if (g->GetParameter(1) < 260 || g->GetParameter(1) > 280) continue;
+      if (g->GetParameter(1) < 286 || g->GetParameter(1) > 301) continue;
       if (g->GetParameter(0) < 2300*beam_energy/100.0) continue;
 	//if(test == 1) {cout << "The for loop is maybe working..." << endl; test = 0;}
-      for (int i = 0;i < nsamples;i++) mean_waveform->Fill(200+WF_time[i+impinged_channel*nsamples]-g->GetParameter(1),WF_val[i+impinged_channel*nsamples]); //  //Note: 200 changed from 270
+      for (int i = 0;i < nsamples;i++) mean_waveform->Fill(297+WF_time[i+impinged_channel*nsamples]-g->GetParameter(1),WF_val[i+impinged_channel*nsamples]); //  //Note: 295 changed from 270
     }
-    //}
+    }
   }
 
 
@@ -129,7 +129,7 @@ void Oct_generating_template(){
 
   TAxis *xaxis = mean_waveform->GetXaxis();
   const int nTempBins = 100*nsamples;
-  TH1F *interpolated_mean_waveform = new TH1F("interpolated mean waveform - C3 - 100 GeV - 6*6 mm^2 at center","interpolated mean waveform - C3 - 100 GeV - 6*6 mm^2 at center;time(ns)",nTempBins,-0.125,937.375);
+  TH1F *interpolated_mean_waveform = new TH1F("interpolated mean waveform - C3 - 50 GeV - 6*6 mm^2 at center","interpolated mean waveform - C3 - 50 GeV - 6*6 mm^2 at center;time(ns)",nTempBins,-0.125,937.375);
   TAxis *xaxis2 = interpolated_mean_waveform->GetXaxis();
   double x[nsamples+2],y[nsamples+2];
   x[0] = xaxis->GetBinCenter(1) - 6.25;
@@ -154,8 +154,9 @@ void Oct_generating_template(){
   interpolated_mean_waveform->SetLineColor(4);
   interpolated_mean_waveform->Draw("same");
 
-  TFile *template_file = new TFile("/afs/cern.ch/user/k/kyee/work/template_new_9906.root","recreate");
+  TFile *template_file = new TFile("/afs/cern.ch/user/k/kyee/work/template_new_10038.root","recreate");
   template_file->cd();
+  interpolated_mean_waveform->Write();
   mean_waveform->Write();
   template_file->Close();
 
