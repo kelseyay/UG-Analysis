@@ -12,6 +12,8 @@
 #include <TChain.h>
 #include <TFile.h>
 
+//Authored by Arash Jofrehei. Modified by Kelsey Yee.
+
 using namespace std;
 const int nsamples = 150;
 const int nboards = 1;
@@ -33,7 +35,7 @@ float hodoY[2];
 
 void Oct_generating_template(){
   TCanvas *canvas = new TCanvas("generating template","generating template");
-  TFile *file = new TFile("/afs/cern.ch/user/k/kyee/H4Analysis/ntuples/oct_15_10038.root");
+  TFile *file = new TFile("/afs/cern.ch/user/k/kyee/H4Analysis/ntuples/oct_C3_50_9835.root");
   //TFile *file = new TFile("/afs/cern.ch/work/a/ajofrehe/cern-summer-2016/July2017/H4Analysis/ntuples/vfe_55_C3_100.root");
   TTree *mtree = (TTree*) file->Get("h4");
   mtree->SetBranchAddress("WF_time",WF_time);
@@ -154,7 +156,7 @@ void Oct_generating_template(){
   interpolated_mean_waveform->SetLineColor(4);
   interpolated_mean_waveform->Draw("same");
 
-  TFile *template_file = new TFile("/afs/cern.ch/user/k/kyee/work/template_new_10038.root","recreate");
+  TFile *template_file = new TFile("/afs/cern.ch/user/k/kyee/work/template_new_9835.root","recreate");
   template_file->cd();
   interpolated_mean_waveform->Write();
   mean_waveform->Write();
